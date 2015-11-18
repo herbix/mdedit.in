@@ -19,7 +19,7 @@ $mkfile = !file_exists($filename);
 
 if ($mkfile) {
 	mkdir(dirname($filename), 0777, true);
-	touch($filename);
+	copy(dirname(__FILE__).'/data/template.md', $filename);
 }
 
 $text = file_get_contents($filename);
@@ -129,7 +129,7 @@ $html = str_replace('<table>', '<table class="table">', $html);
 						<ul class="dropdown-menu">
 							<li><a href="#">MDEdit.in</a></li>
 							<li role="separator" class="divider"></li>
-							<li><a href="#" style="color:#aaa">Thanks To:</a></li>
+							<li><a href="#" style="color:#aaa">Thanks:</a></li>
 							<li><a href="http://getbootstrap.com">Bootstrap</a></li>
 							<li><a href="http://codemirror.net/">CodeMirror</a></li>
 							<li><a href="https://github.com/tanakahisateru/js-markdown-extra">Js-Markdown-Extra</a></li>
