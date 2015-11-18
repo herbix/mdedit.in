@@ -4,7 +4,7 @@
 
 ## Introduction
 
-[mdedit.in](http://mdeditin) is a simple online markdown editor.
+[mdedit.in](http://mdedit.in) is a simple online markdown editor.
 
 ## Features
 
