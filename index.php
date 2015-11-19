@@ -2,6 +2,7 @@
 
 require_once('config.php');
 require_once('include/func.php');
+require_once('include/template.php');
 
 $mkfile = false;
 
@@ -18,11 +19,10 @@ $filename = get_file_from_hash($hash);
 $mkfile = !file_exists($filename);
 
 if ($mkfile) {
-	mkdir(dirname($filename), 0777, true);
-	copy(dirname(__FILE__).'/data/template.md', $filename);
+	$text = $template;
+} else {
+	$text = file_get_contents($filename);
 }
-
-$text = file_get_contents($filename);
 
 spl_autoload_register(function($class){
 	require preg_replace('{\\\\|_(?!.*\\\\)}', DIRECTORY_SEPARATOR, ltrim('include\\'.$class, '\\')).'.php';
@@ -117,7 +117,7 @@ $html = str_replace('<table>', '<table class="table">', $html);
 				<label class="checkbox-inline btn" for="line-wrapping">
 					<input id="line-wrapping" type="checkbox" checked />Line Wrapping
 				</label>
-				<a class="btn btn-primary navbar-btn" style="margin-right:10px;" href="export.php">
+				<a class="btn btn-primary navbar-btn" style="margin-right:10px;" onclick="updateToServer(false)" href="export.php">
 					<i class="glyphicon glyphicon-export"></i> Export
 				</a>
 				<a class="btn btn-danger navbar-btn" style="margin-right:10px;" href="discard.php">
@@ -133,6 +133,7 @@ $html = str_replace('<table>', '<table class="table">', $html);
 							<li><a href="http://getbootstrap.com">Bootstrap</a></li>
 							<li><a href="http://codemirror.net/">CodeMirror</a></li>
 							<li><a href="https://github.com/tanakahisateru/js-markdown-extra">Js-Markdown-Extra</a></li>
+							<li><a href="https://michelf.ca/projects/php-markdown/">PHP Markdown</a></li>
 						</ul>
 					</li>
 				</ul>
