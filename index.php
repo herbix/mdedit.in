@@ -4,6 +4,8 @@ require_once('config.php');
 require_once('include/func.php');
 require_once('include/template.php');
 
+define('FLAG_DEFAULT', 7);
+
 $mkfile = false;
 
 if (!isset($_COOKIE['hash'])) {
@@ -12,6 +14,8 @@ if (!isset($_COOKIE['hash'])) {
 } else {
 	$hash = $_COOKIE['hash'];
 }
+
+$flag = isset($_COOKIE['flag']) ? $_COOKIE['flag'] : FLAG_DEFAULT;
 
 setcookie('hash', $hash, time() + 365 * 86400);
 
@@ -50,6 +54,7 @@ $html = str_replace('<table>', '<table class="table">', $html);
 		<?php js('js/codemirror.js'); ?>
 		<?php js('js/codemirror-markdown.js'); ?>
 		<?php js('js/js-markdown-extra.js'); ?>
+		<?php js('js/jquery.cookie.js'); ?>
 		<script>
 		$(function() {
 			var input = $('#text-input');
@@ -77,6 +82,21 @@ $html = str_replace('<table>', '<table class="table">', $html);
 			
 			$('#line-wrapping').click(function() {
 				cm.setOption('lineWrapping', $('#line-wrapping').prop('checked'));
+			});
+			
+			$('input[type=checkbox]').each(function(index, elem) {
+				var self = $(elem);
+				self.change(function() {
+					var flag = $.cookie('flag');
+					if ('undefined' === typeof flag) flag = <?php echo FLAG_DEFAULT; ?>;
+					var set = self.prop('checked');
+					if (set) {
+						flag |= (1 << index);
+					} else {
+						flag &= ~(1 << index);
+					}
+					$.cookie('flag', flag);
+				});
 			});
 			
 			$(window).bind('beforeunload', function(e) {
@@ -109,13 +129,13 @@ $html = str_replace('<table>', '<table class="table">', $html);
 		<nav class="navbar navbar-default navbar-fixed-bottom">
 			<div class="container-fluid">
 				<label class="checkbox-inline btn" for="enable-preview">
-					<input id="enable-preview" type="checkbox" checked />Enable Preview
+					<input id="enable-preview" type="checkbox" <?php if ($flag & 1) echo 'checked'; ?> />Enable Preview
 				</label>
 				<label class="checkbox-inline btn" for="scroll-sync">
-					<input id="scroll-sync" type="checkbox" checked />Scroll Sync
+					<input id="scroll-sync" type="checkbox" <?php if ($flag & 2) echo 'checked'; ?> />Scroll Sync
 				</label>
 				<label class="checkbox-inline btn" for="line-wrapping">
-					<input id="line-wrapping" type="checkbox" checked />Line Wrapping
+					<input id="line-wrapping" type="checkbox" <?php if ($flag & 4) echo 'checked'; ?> />Line Wrapping
 				</label>
 				<a class="btn btn-primary navbar-btn" style="margin-right:10px;" onclick="updateToServer(false)" href="export.php">
 					<i class="glyphicon glyphicon-export"></i> Export
