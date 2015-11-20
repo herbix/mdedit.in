@@ -63,19 +63,38 @@ $html = str_replace('<table>', '<table class="table">', $html);
     </head>
 	<body>
 		<div class="content-outer">
-			<div class="content" style="padding-right:4px">
+			<div id="editor-outer" class="content" style="padding-right:4px">
 				<textarea name="content" id="text-input" class="form-control" style="height:100%;width:100%"><?php echo $text; ?></textarea>
 			</div>
-			<div class="content" style="padding-left:4px">
+			<div id="preview-outer" class="content" style="padding-left:4px">
 				<div id="preview">
 					<?php
-						echo $html;
+						if ($flag & 1) echo $html;
 					?>
 				</div>
 			</div>
 		</div>
 		<nav class="navbar navbar-default navbar-fixed-bottom">
 			<div class="container-fluid">
+				<div class="btn-group">
+					<button id="ordered-list" class="btn btn-default navbar-btn" href="javascript:;" title="Ordered List">
+						<i class="fa fa-list-ol"></i>
+					</button>
+					<button id="unordered-list" class="btn btn-default navbar-btn" href="javascript:;" title="Unordered List">
+						<i class="fa fa-list-ul"></i>
+					</button>
+					<button id="remove-list" class="btn btn-default navbar-btn" href="javascript:;" title="Remove List">
+						<i class="fa fa-dedent"></i>
+					</button>
+				</div>
+				<div class="btn-group">
+					<button id="quote" class="btn btn-default navbar-btn" href="javascript:;" title="Quote">
+						<i class="fa fa-quote-left"></i>
+					</button>
+					<button id="dequote" class="btn btn-default navbar-btn" href="javascript:;" title="Remove Quote">
+						<i class="fa fa-quote-right"></i>
+					</button>
+				</div>
 				<div id="config" class="btn-group" data-toggle="buttons">
 					<label class="btn btn-default navbar-btn<?php if ($flag & 1) echo ' active'; ?>" for="enable-preview" title="Enable Preview">
 						<input id="enable-preview" type="checkbox" <?php if ($flag & 1) echo 'checked'; ?> />
