@@ -6,13 +6,13 @@ require_once('include/template.php');
 
 define('FLAG_DEFAULT', 7);
 
-$mkfile = false;
-
 if (!isset($_COOKIE['hash'])) {
-	$hash = md5(openssl_random_pseudo_bytes(16));
-	$mkfile = true;
+	$hash = gen_hash();
 } else {
 	$hash = $_COOKIE['hash'];
+	if (!preg_match('/^[a-z0-9]{32}$/', $hash)) {
+		$hash = gen_hash();
+	}
 }
 
 $flag = isset($_COOKIE['flag']) ? $_COOKIE['flag'] : FLAG_DEFAULT;
@@ -49,99 +49,52 @@ $html = str_replace('<table>', '<table class="table">', $html);
 		<?php css('css/bootstrap-theme.min.css') ?>
 		<?php css('css/codemirror.css') ?>
 		<?php css('css/style.css') ?>
+		<?php css('css/font-awesome.min.css') ?>
 		<?php js('js/jquery-1.11.3.min.js'); ?>
 		<?php js('js/bootstrap.min.js'); ?>
 		<?php js('js/codemirror.js'); ?>
 		<?php js('js/codemirror-markdown.js'); ?>
 		<?php js('js/js-markdown-extra.js'); ?>
 		<?php js('js/jquery.cookie.js'); ?>
-		<script>
-		$(function() {
-			var input = $('#text-input');
-			var preview = $('#preview');
-			var cm = CodeMirror.fromTextArea(input.get(0), {
-				lineNumbers: true,
-				mode: "markdown",
-				lineWrapping: true
-			});
-			
-			var scrollsync = $('#scroll-sync');
-			var enablepreview = $('#enable-preview');
-			
-			cm.on('change', function() {
-				if (enablepreview.prop('checked')) {
-					cm.save();
-					preview.html(Markdown(input.val()).replace(/<table>/g, '<table class="table">'));
-				}
-			});
-			cm.on('scroll', function() {
-				if (scrollsync.prop('checked')) {
-					preview.scrollTop(cm.getScrollInfo().top);
-				}
-			});
-			
-			$('#line-wrapping').click(function() {
-				cm.setOption('lineWrapping', $('#line-wrapping').prop('checked'));
-			});
-			
-			$('input[type=checkbox]').each(function(index, elem) {
-				var self = $(elem);
-				self.change(function() {
-					var flag = $.cookie('flag');
-					if ('undefined' === typeof flag) flag = <?php echo FLAG_DEFAULT; ?>;
-					var set = self.prop('checked');
-					if (set) {
-						flag |= (1 << index);
-					} else {
-						flag &= ~(1 << index);
-					}
-					$.cookie('flag', flag);
-				});
-			});
-			
-			$(window).bind('beforeunload', function(e) {
-				if (!updateToServer(false)) {
-					e.preventDefault();
-				}
-			});
-			
-			setInterval(60000, updateToServer);
-			
-			function updateToServer(async) {
-				if ('undefined' === typeof async) { async = true; }
-				var success = false;
-				cm.save();
-				$.ajax({
-					type: 'post',
-					url: 'update.php',
-					data: {content: input.val()},
-					async: async,
-					timeout: 3000,
-					success: function() { success = true; }
-				});
-				return success;
-			}
-		});		
+		<?php js('js/script.js'); ?>
+		<script type="text/javascript">
+			var FLAG_DEFAULT = <?php echo FLAG_DEFAULT; ?>
 		</script>
     </head>
 	<body>
-		<input type="hidden" name="origin" value="<?php echo $hash; ?>"/>
+		<div class="content-outer">
+			<div class="content" style="padding-right:4px">
+				<textarea name="content" id="text-input" class="form-control" style="height:100%;width:100%"><?php echo $text; ?></textarea>
+			</div>
+			<div class="content" style="padding-left:4px">
+				<div id="preview">
+					<?php
+						echo $html;
+					?>
+				</div>
+			</div>
+		</div>
 		<nav class="navbar navbar-default navbar-fixed-bottom">
 			<div class="container-fluid">
-				<label class="checkbox-inline btn" for="enable-preview">
-					<input id="enable-preview" type="checkbox" <?php if ($flag & 1) echo 'checked'; ?> />Enable Preview
-				</label>
-				<label class="checkbox-inline btn" for="scroll-sync">
-					<input id="scroll-sync" type="checkbox" <?php if ($flag & 2) echo 'checked'; ?> />Scroll Sync
-				</label>
-				<label class="checkbox-inline btn" for="line-wrapping">
-					<input id="line-wrapping" type="checkbox" <?php if ($flag & 4) echo 'checked'; ?> />Line Wrapping
-				</label>
-				<a class="btn btn-primary navbar-btn" style="margin-right:10px;" onclick="updateToServer(false)" href="export.php">
-					<i class="glyphicon glyphicon-export"></i> Export
+				<div id="config" class="btn-group" data-toggle="buttons">
+					<label class="btn btn-default navbar-btn<?php if ($flag & 1) echo ' active'; ?>" for="enable-preview" title="Enable Preview">
+						<input id="enable-preview" type="checkbox" <?php if ($flag & 1) echo 'checked'; ?> />
+						<i class="fa fa-eye"></i>
+					</label>
+					<label class="btn btn-default navbar-btn<?php if ($flag & 2) echo ' active'; ?>" for="scroll-sync" title="Scroll Sync">
+						<input id="scroll-sync" type="checkbox" <?php if ($flag & 2) echo 'checked'; ?> />
+						<i class="fa fa-columns"></i>
+					</label>
+					<label class="btn btn-default navbar-btn<?php if ($flag & 4) echo ' active'; ?>" for="line-wrapping" title="Line Wrapping">
+						<input id="line-wrapping" type="checkbox" <?php if ($flag & 4) echo 'checked'; ?> />
+						<i class="fa fa-paragraph"></i>
+					</label>
+				</div>
+				<a class="btn btn-primary navbar-btn" onclick="updateToServer(false)" href="export.php" title="Download">
+					<i class="fa fa-cloud-download"></i>
 				</a>
-				<a class="btn btn-danger navbar-btn" style="margin-right:10px;" href="discard.php">
-					<i class="glyphicon glyphicon-trash"></i> Discard
+				<a class="btn btn-danger navbar-btn" href="discard.php" title="Discard">
+					<i class="fa fa-trash"></i>
 				</a>
 				<ul class="nav navbar-nav navbar-right">
 					<li class="dropdown">
@@ -152,6 +105,7 @@ $html = str_replace('<table>', '<table class="table">', $html);
 							<li><a href="#" style="color:#aaa">Thanks:</a></li>
 							<li><a href="http://getbootstrap.com">Bootstrap</a></li>
 							<li><a href="http://codemirror.net/">CodeMirror</a></li>
+							<li><a href="http://fortawesome.github.io/Font-Awesome/">Font Awesome</a></li>
 							<li><a href="https://github.com/tanakahisateru/js-markdown-extra">Js-Markdown-Extra</a></li>
 							<li><a href="https://michelf.ca/projects/php-markdown/">PHP Markdown</a></li>
 						</ul>
@@ -159,15 +113,5 @@ $html = str_replace('<table>', '<table class="table">', $html);
 				</ul>
 			</div>
 		</nav>
-		<div class="content" style="padding-right:4px;">
-			<textarea name="content" id="text-input" class="form-control" style="height:100%;width:100%"><?php echo $text; ?></textarea>
-		</div>
-		<div class="content" style="padding-left:4px;">
-			<div id="preview">
-				<?php
-					echo $html;
-				?>
-			</div>
-		</div>
 	</body>
 </html>

@@ -14,4 +14,8 @@ function get_file_from_hash($hash) {
 	return dirname(dirname(__FILE__)).'/data/'.substr($hash, 0, 2).'/'.$hash;
 }
 
+function gen_hash() {
+	return md5(openssl_random_pseudo_bytes(16));
+}
+
 ?>

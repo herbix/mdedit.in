@@ -4,7 +4,10 @@ p, li {font-size:15px; font-family:"Helvetica Neue",Helvetica,Arial,"SimSun","ST
 h1, h2, h3, h4, h5, h6 {font-weight:bold;font-family:"Helvetica Neue",Helvetica,Arial,"SimHei","STHeiti",sans-serif;}
 blockquote p {font-family:"Helvetica Neue",Helvetica,Arial,"KaiTi","STKaiti",sans-serif;}
 html, body {height:100%;}
-.content {float:left;width:50%;margin:0;height:100%;padding-bottom:50px;background:#EEE;}
+.content {float:left;width:50%;margin:0;height:100%;background:#EEE;}
+.content-outer {padding-bottom:50px;height:100%;}
 #preview {width:100%;height:100%;overflow:scroll;background:#FFF;padding:10px;}
 .CodeMirror {height:100%;}
 img {max-width:100%;}
+nav .btn, .btn-group {margin-left:10px;}
+.fa {width:16px;}

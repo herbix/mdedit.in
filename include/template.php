@@ -26,6 +26,7 @@ Chaofan Yang (herbix)
 
 * CodeMirror
 * Bootstrap
+* Font Awesome
 * Js-Markdown-Extra
 * PHP Markdown
 
